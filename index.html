@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
+    <title>Загрузка...</title>
+    <style>
+        /* Фон всей страницы с изображением */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('000.jpg'); /* Замените на ваш фон */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden; /* Это предотвращает появление прокрутки */
+            user-select: none; /* Запрет на выделение текста */
+            -webkit-user-select: none; /* Запрет на выделение текста в Safari */
+            -moz-user-select: none; /* Запрет на выделение текста в Firefox */
+            -ms-user-select: none; /* Запрет на выделение текста в Internet Explorer */
+        }
+
+        /* Логотип или текстовое сообщение */
+        .logo {
+            width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-size: 28px;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Анимация текста */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Блок загрузки */
+        .loader {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border: 10px solid rgba(255, 255, 255, 0.2);
+            border-top: 10px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Анимация вращения */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Вспомогательные элементы (звездочки) для эффекта */
+        .loader::before, .loader::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .loader::before {
+            width: 15px;
+            height: 15px;
+            top: -30px;
+            left: 42px;
+            animation: blink 1.2s infinite;
+        }
+
+        .loader::after {
+            width: 10px;
+            height: 10px;
+            bottom: -25px;
+            right: 42px;
+            animation: blink 1.5s infinite;
+        }
+
+        /* Анимация вспышек звездочек */
+        @keyframes blink {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Добавляем логотип или текст "Загрузка..." -->
+    <div class="loading-text">Загрузка...</div>
+
+    <!-- Анимационный блок загрузки -->
+    <div class="loader"></div>
+
+    <script>
+        // Ждем 5 секунд и перенаправляем на другую страницу
+        setTimeout(function(){
+            window.location.href = "menu.html"; // Ссылка на другую страницу
+        }, 5000);
+    </script>
+
+</body>
+</html>

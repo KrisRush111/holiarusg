@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
+    <title>Кликер с кристаллами</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        body {
+            background: rgb(41, 41, 41);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: center;
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        /* Текст ограничений */
+        .restriction-text {
+            color: #ffffff;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        /* Кнопка "Домой" */
+        .home-button {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            outline: none;
+        }
+
+        .home-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            outline: none;
+        }
+
+        .home-button:focus {
+            outline: none;
+        }
+
+        /* Стили для изображения кристалла */
+        #clicker {
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        /* Анимация нажатия на кристалл */
+        .clicked {
+            transform: scale(0.9);
+        }
+
+        /* Всплывающее сообщение */
+        .popup {
+            position: absolute;
+            padding: 10px;
+            border-radius: 5px;
+            animation: fadeOut 1s forwards;
+            transition: opacity 0.5s;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="container">
+            <h1><span id="crystalCount">0</span></h1>
+            <img id="clicker" src="d.png" alt="Картинка кристалла">
+            <div id="restrictionText" class="restriction-text"></div>
+            <div id="timer" class="restriction-text" style="display: none;"></div> <!-- Таймер скрыт по умолчанию -->
+        </div>
+    </div>
+
+    <!-- Кнопка "Домой" -->
+    <button class="home-button" onclick="goHome()">Домой</button>
+
+    <script>
+        let crystalCount = parseInt(localStorage.getItem('totalCrystals')) || 0;
+        let clickCount = parseInt(localStorage.getItem('clickCount')) || 0; // Счетчик кликов
+        let startTime = parseInt(localStorage.getItem('startTime')) || Date.now(); // Время первого клика
+        const crystalDisplay = document.getElementById('crystalCount');
+        const clickerImage = document.getElementById('clicker');
+        const restrictionText = document.getElementById('restrictionText');
+        const timerDisplay = document.getElementById('timer');
+        const clickLimit = 1000; // Максимум 1000 кликов
+        const timeLimit = 30 * 60 * 1000; // 30 минут в миллисекундах
+
+        // Обновляем отображение количества кристаллов
+        crystalDisplay.textContent = crystalCount;
+
+        // Функция для обновления текста ограничений
+        function updateRestrictionText() {
+            const timeElapsed = Date.now() - startTime;
+            if (clickCount >= clickLimit) {
+                restrictionText.textContent = 'Лимит кликов достигнут (1000 кликов за 30 минут).';
+                clickerImage.removeEventListener('click', clickHandler); // Блокируем клики
+                showTimer(); // Показываем таймер после достижения лимита
+            } else if (timeElapsed >= timeLimit) {
+                restrictionText.textContent = 'Время истекло (30 минут).';
+                clickerImage.removeEventListener('click', clickHandler); // Блокируем клики
+                showTimer(); // Показываем таймер после истечения времени
+            } else {
+                restrictionText.textContent = `${clickLimit - clickCount} кликов осталось.`;
+            }
+        }
+
+        // Функция для отображения таймера
+        function showTimer() {
+            timerDisplay.style.display = 'block'; // Показываем таймер
+            updateTimer(); // Запускаем таймер
+        }
+
+        // Функция для обновления таймера
+        function updateTimer() {
+            const timeElapsed = Date.now() - startTime;
+            const timeRemaining = timeLimit - timeElapsed;
+
+            if (timeRemaining <= 0) {
+                timerDisplay.textContent = "30 минут прошли!";
+                return;
+            }
+
+            const minutes = Math.floor(timeRemaining / (60 * 1000));
+            const seconds = Math.floor((timeRemaining % (60 * 1000)) / 1000);
+            timerDisplay.textContent = `Оставшееся время: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Функция для увеличения количества кристаллов при нажатии
+        function clickHandler() {
+            const timeElapsed = Date.now() - startTime;
+
+            if (timeElapsed > timeLimit) {
+                restrictionText.textContent = 'Время истекло (30 минут).';
+                clickerImage.removeEventListener('click', clickHandler); // Блокируем клики
+                return;
+            }
+
+            if (clickCount < clickLimit) {
+                crystalCount++;
+                crystalDisplay.textContent = crystalCount;
+                localStorage.setItem('totalCrystals', crystalCount);
+                clickCount++;
+                localStorage.setItem('clickCount', clickCount);
+                updateRestrictionText();
+                clickerImage.classList.add('clicked');
+                setTimeout(() => {
+                    clickerImage.classList.remove('clicked');
+                }, 100);
+                showPopup(`+1`);
+            }
+        }
+
+        clickerImage.addEventListener('click', clickHandler);
+
+        // Функция для возврата на предыдущую страницу
+        function goHome() {
+            history.back();
+        }
+
+        // Функция для отображения всплывающего сообщения
+        function showPopup(message) {
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            popup.innerText = message;
+            document.body.appendChild(popup);
+            setTimeout(() => {
+                popup.remove();
+            }, 1500);
+        }
+
+        // Инициализация
+        updateRestrictionText();
+        setInterval(updateTimer, 1000); // Таймер обновляется каждую секунду
+    </script>
+</body>
+</html>
